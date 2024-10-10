@@ -50,6 +50,12 @@ model_options = {
     'claude_21': 'ANTHROPIC:claude-2.1',
     'claude_20': 'ANTHROPIC:claude-2.0',
     'claude_instant': 'ANTHROPIC:claude-instant-1.2',
+    'llama_3_8b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3-8B-Instruct-Turbo',
+    'llama_3.1_8b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+    'llama_3.1_70b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+    'llama_3.1_405b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+    'gemma_2_9b_instruct': 'TOGETHERAI:together_ai/google/gemma-2-9b-it',
+    'gemma_2_27b_instruct': 'TOGETHERAI:together_ai/google/gemma-2-27b-it'
 }
 model_string = {
     'gpt_4_turbo': 'gpt4turbo',
@@ -62,6 +68,9 @@ model_string = {
     'claude_21': 'claude21',
     'claude_20': 'claude20',
     'claude_instant': 'claudeinstant',
+    'llama_3_8b_instruct_turbo': 'llama_3_8b_instruct_turbo',
+    'llama_3.1_8b_instruct_turbo': 'llama_3.1_8b_instruct_turbo',
+    'gemma_2_9b_instruct': 'gemma_2_9b_instruct' 
 }
 task_options = {}
 root_dir = '/'.join(os.path.abspath(__file__).split('/')[:-2])

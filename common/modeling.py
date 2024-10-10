@@ -25,6 +25,7 @@ import anthropic
 import langfun as lf
 import openai
 import pyglove as pg
+import litellm
 
 # pylint: disable=g-bad-import-order
 from common import modeling_utils
@@ -40,6 +41,15 @@ _ANTHROPIC_MODELS = [
     'claude-2.1',
     'claude-2.0',
     'claude-instant-1.2',
+]
+
+_TOGETHER_AI_MODELS = [
+  "together_ai/meta-llama/Meta-Llama-3-8B-Instruct-Turbo",
+  "together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+  "together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+  "together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+  "together_ai/google/gemma-2-9b-it",
+  "together_ai/google/gemma-2-27b-it",
 ]
 
 
@@ -159,6 +169,98 @@ class AnthropicModel(lf.LanguageModel):
         ),
     )
 
+class TogetherAIModel(lf.LanguageModel):
+  """Together AI model."""
+
+  model: Annotated[
+      pg.typing.Enum(pg.MISSING_VALUE, _TOGETHER_AI_MODELS),
+      'The name of the model to use.',
+  ] = 'together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo'
+
+  def _on_bound(self) -> None:
+    super()._on_bound()
+    self.__dict__.pop('_api_initialized', None)
+
+  @functools.cached_property
+  def _api_initialized(self) -> bool:
+    self.api_key = self.api_key or os.environ.get('TOGETHER_API_KEY', None)
+    if not self.api_key:
+      raise ValueError(
+          'Please specify `api_key` during `__init__` or set environment '
+          'variable `TOGETHER_API_KEY` with your Together AI API key.'
+      )
+    return True
+
+  @property
+  def model_id(self) -> str:
+    """Returns a string to identify the model."""
+    return f'TogetherAI({self.model})'
+
+  def _get_request_args(
+      self, options: lf.LMSamplingOptions
+  ) -> dict[str, Any]:
+    args = dict(
+        temperature=options.temperature,
+        max_tokens=options.max_tokens,
+        stream=False,
+        model=self.model,
+        api_key=self.api_key,
+    )
+
+    if options.top_p is not None:
+      args['top_p'] = options.top_p
+    if options.top_k is not None:
+      args['top_k'] = options.top_k
+    if options.stop:
+      args['stop'] = options.stop
+
+    return args
+  
+  def _sample(self, prompts: list[lf.Message]) -> list[LMSamplingResult]:
+    assert self._api_initialized
+    return self._complete_batch(prompts)
+
+  def _set_logging(self) -> None:
+    logger: logging.Logger = logging.getLogger('together')
+    httpx_logger: logging.Logger = logging.getLogger('httpx')
+    logger.setLevel(logging.WARNING)
+    httpx_logger.setLevel(logging.WARNING)
+
+  def _complete_batch(
+      self, prompts: list[lf.Message]
+  ) -> list[LMSamplingResult]:
+    def _together_ai_chat_completion(prompt: lf.Message) -> LMSamplingResult:
+      content = prompt.text
+      response = litellm.completion(
+          model=self.model,
+          messages=[{"role": "user", "content": content}],
+          **self._get_request_args(self.sampling_options),
+      )
+      model_response = response.choices[0].message.content
+      samples = [lf.LMSample(model_response, score=0.0)]
+      return LMSamplingResult(
+          samples=samples,
+          usage=Usage(
+              prompt_tokens=response.usage.input_tokens,
+              completion_tokens=response.usage.output_tokens,
+          ),
+      )
+
+    self._set_logging()
+    return lf.concurrent_execute(
+        _together_ai_chat_completion,
+        prompts,
+        executor=self.resource_id,
+        max_workers=1,
+        max_attempts=self.max_attempts,
+        retry_interval=self.retry_interval,
+        exponential_backoff=self.exponential_backoff,
+        retry_on_errors=(
+            litellm.RateLimitError,
+            litellm.APIConnectionError,
+            litellm.InternalServerError,
+        ),
+    )
 
 class Model:
   """Class for storing any single language model."""
@@ -205,6 +307,16 @@ class Model:
       return AnthropicModel(
           model=model_name[10:],
           api_key=shared_config.anthropic_api_key,
+          sampling_options=sampling,
+      )
+    elif model_name.lower().startswith('togetherai:'):
+      if not shared_config.together_api_key:
+        utils.maybe_print_error('No Together AI API Key specified.')
+        utils.stop_all_execution(True)
+
+      return TogetherAIModel(
+          model=model_name.strip('togetherai:'),
+          api_key=shared_config.together_api_key,
           sampling_options=sampling,
       )
     elif 'unittest' == model_name.lower():
