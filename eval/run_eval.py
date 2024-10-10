@@ -52,13 +52,13 @@ _RESULT_PATH = flags.DEFINE_string(
     'result_path', '', 'Path to the result file to eval.'
 )
 _EVAL_SIDE1 = flags.DEFINE_bool(
-    'eval_side1', True, 'Whether to evaluate Side 1 response.'
+    'eval_side1', False, 'Whether to evaluate Side 1 response.'
 )
 _EVAL_SIDE2 = flags.DEFINE_bool(
     'eval_side2', True, 'Whether to evaluate Side 2 response.'
 )
 _PARALLELIZE = flags.DEFINE_bool(
-    'parallelize', True, 'Whether to run eval in parallel.'
+    'parallelize', False, 'Whether to run eval in parallel.'
 )
 _MAX_CLAIM = flags.DEFINE_integer(
     'max_claim', -1, 'Maximum number of claims to consider when computing F1.'
@@ -211,6 +211,8 @@ def main(_) -> None:
       safe_config.model,
       temperature=safe_config.model_temp,
       max_tokens=safe_config.max_tokens,
+      show_responses=True,
+      show_prompts=True,
   )
   rater_model.print_config()
   result_data['autoeval_configs'] = utils.get_attributes(safe_config)

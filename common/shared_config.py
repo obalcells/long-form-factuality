@@ -36,6 +36,7 @@ people, numbers, events, locations, dates, times, etc.)
 """
 openai_api_key = ''
 anthropic_api_key = ''
+together_api_key = ''
 serper_api_key = ''
 random_seed = 1
 model_options = {
@@ -44,18 +45,21 @@ model_options = {
     'gpt_4_32k': 'OPENAI:gpt-4-32k-0613',
     'gpt_35_turbo': 'OPENAI:gpt-3.5-turbo-0125',
     'gpt_35_turbo_16k': 'OPENAI:gpt-3.5-turbo-16k-0613',
+    'gpt_4o_mini': 'OPENAI:gpt-4o-mini-2024-07-18',
+    'gpt_4o': 'OPENAI:gpt-4o-2024-08-06',
     'claude_3_opus': 'ANTHROPIC:claude-3-opus-20240229',
     'claude_3_sonnet': 'ANTHROPIC:claude-3-sonnet-20240229',
     'claude_3_haiku': 'ANTHROPIC:claude-3-haiku-20240307',
     'claude_21': 'ANTHROPIC:claude-2.1',
     'claude_20': 'ANTHROPIC:claude-2.0',
     'claude_instant': 'ANTHROPIC:claude-instant-1.2',
-    'llama_3_8b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3-8B-Instruct-Turbo',
-    'llama_3.1_8b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-    'llama_3.1_70b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
-    'llama_3.1_405b_instruct_turbo': 'TOGETHERAI:together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
-    'gemma_2_9b_instruct': 'TOGETHERAI:together_ai/google/gemma-2-9b-it',
-    'gemma_2_27b_instruct': 'TOGETHERAI:together_ai/google/gemma-2-27b-it'
+    'claude_35_sonnet': 'ANTHROPIC:claude-3-5-sonnet-20240620',
+    'llama_3_8b_instruct_turbo': 'TOGETHERAI:meta-llama/Meta-Llama-3-8B-Instruct-Turbo',
+    'llama_3.1_8b_instruct_turbo': 'TOGETHERAI:meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+    'llama_3.1_70b_instruct_turbo': 'TOGETHERAI:meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+    'llama_3.1_405b_instruct_turbo': 'TOGETHERAI:meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+    'gemma_2_9b_instruct': 'TOGETHERAI:google/gemma-2-9b-it',
+    'gemma_2_27b_instruct': 'TOGETHERAI:google/gemma-2-27b-it'
 }
 model_string = {
     'gpt_4_turbo': 'gpt4turbo',

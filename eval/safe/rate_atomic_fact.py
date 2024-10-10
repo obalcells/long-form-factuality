@@ -16,6 +16,7 @@
 import dataclasses
 import re
 from typing import Any
+import os
 
 # pylint: disable=g-bad-import-order
 from common import modeling
@@ -92,6 +93,12 @@ def call_search(
     search_postamble: str = '',  # ex: 'site:https://en.wikipedia.org'
 ) -> str:
   """Call Google Search to get the search result."""
+  if serper_api_key is None or serper_api_key == '':
+    serper_api_key = os.environ.get('SERPER_API_KEY', None)
+    if serper_api_key is None:
+      utils.maybe_print_error('No Serper API Key specified.')
+      utils.stop_all_execution(True)
+
   search_query += f' {search_postamble}' if search_postamble else ''
 
   if search_type == 'serper':
